@@ -10,18 +10,15 @@ from langchain_astradb import AstraDBVectorStore
 
 print("Starting data ingestion process...")
 
-# Load environment variables
 load_dotenv()
 ASTRA_DB_API_ENDPOINT = os.getenv("ASTRA_DB_API_ENDPOINT")
 ASTRA_DB_TOKEN = os.getenv("ASTRA_DB_TOKEN")
 
-# --- Essential Setup ---
 if not all([ASTRA_DB_API_ENDPOINT, ASTRA_DB_TOKEN]):
     print("ERROR: Missing AstraDB credentials in .env file.")
     exit()
 
 print("Initializing embeddings model...")
-# Initialize the embeddings with the desired model
 embeddings = OllamaEmbeddings(model="all-minilm:latest")
 
 print("Connecting to AstraDB vector store...")
@@ -32,7 +29,6 @@ vector_store = AstraDBVectorStore(
     token=ASTRA_DB_TOKEN
 )
 
-# --- Load, Process, and Ingest Data ---
 try:
     print("Loading data...")
     df = pd.read_csv("combined.csv")
