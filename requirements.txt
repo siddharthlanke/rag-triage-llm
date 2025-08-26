@@ -1,0 +1,12 @@
+langchain
+langchain-text-splitters
+langchain-community
+langgraph
+langchain-openai
+langchain-google-genai
+langchain-ollama
+langchain-astradb
+python-dotenv
+pandas
+Flask
+Flask-Cors
