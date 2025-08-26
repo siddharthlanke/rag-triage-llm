@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Element Selectors ---
     const subjectInput = document.getElementById('ticket-subject');
     const descriptionInput = document.getElementById('ticket-description');
     const emailInput = document.getElementById('ticket-email');
@@ -14,11 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const triageLoader = document.getElementById('triage-loader');
     const triageBox = document.getElementById('triage-box');
 
-    // --- Event Listeners ---
     getSuggestionBtn.addEventListener('click', handleGetSuggestion);
     raiseTicketBtn.addEventListener('click', handleRaiseTicket);
 
-    // --- Handler Functions ---
     async function handleGetSuggestion() {
         const subject = subjectInput.value.trim();
         const description = descriptionInput.value.trim();
@@ -28,17 +25,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // --- FIX: Disable button to prevent multiple clicks ---
         getSuggestionBtn.disabled = true;
         getSuggestionBtn.textContent = 'Getting Suggestion...';
 
-        // Reset UI for a new interaction
         raiseTicketBtn.disabled = false;
         raiseTicketBtn.textContent = 'This Didn\'t Help, Raise A Support Ticket';
         
         suggestionContainer.style.display = 'block';
         suggestionLoader.style.display = 'block';
-        suggestionBox.innerHTML = ''; // Clear previous suggestion
+        suggestionBox.innerHTML = ''; 
         raiseTicketBtn.style.display = 'none';
         triageContainer.style.display = 'none';
 
@@ -64,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
             raiseTicketBtn.style.display = 'block';
         } finally {
             suggestionLoader.style.display = 'none';
-            // --- FIX: Re-enable button after process is complete ---
             getSuggestionBtn.disabled = false;
             getSuggestionBtn.textContent = 'Get Instant Suggestion';
         }
@@ -80,10 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Hide the entire suggestion card immediately
         suggestionContainer.style.display = 'none';
         
-        // Show the triage container and its loader
         triageContainer.style.display = 'block';
         triageLoader.style.display = 'block';
         triageBox.innerHTML = '';
@@ -116,7 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
             triageBox.innerHTML = `<p class="error">Could not raise the ticket. Please try again.</p>`;
         } finally {
             triageLoader.style.display = 'none';
-            // --- FIX: Re-enable main button so user can start a new ticket ---
             getSuggestionBtn.disabled = false;
             getSuggestionBtn.textContent = 'Get Instant Suggestion';
         }
