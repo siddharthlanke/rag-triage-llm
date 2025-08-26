@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datel Contact Support</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="page-container">
+        <div class="support-grid">
+            
+            <div class="support-info">
+                <h1>Contact Support</h1>
+                <p class="subtitle">Experiencing an issue? We can help!</p>
+                </div>
+
+            <div class="support-form">
+                <main class="card">
+                    <h2>AI-Powered Instant Suggestion</h2>
+                    <p class="ai-explainer">
+                        This AI-powered system will first attempt to resolve your query instantly. 
+                        If you are not satisfied with the provided solution, you will then have the option to raise a formal support ticket.<br><br>
+
+                    </p>
+                    <div class="form-group">
+                        <label for="ticket-subject">Subject</label>
+                        <input type="text" id="ticket-subject" placeholder="e.g., Cannot login to Sage 200">
+                        
+                        <label for="ticket-email">Your Email *</label>
+                        <input type="email" id="ticket-email" placeholder="e.g., you@example.com">
+                        
+                        <label for="ticket-description">Description / Message</label>
+                        <textarea id="ticket-description" placeholder="Please provide as much detail as possible..."></textarea>
+                        
+                        <button id="get-suggestion-btn">Get Instant Suggestion &rarr;</button>
+                    </div>
+                </main>
+
+                <div id="suggestion-container" class="response-area" style="display: none;">
+                    <h2 class="response-header">Instant Suggestion</h2>
+                    <div id="suggestion-loader" class="loader" style="display: none;"></div>
+                    <div id="suggestion-box" class="response-content"></div>
+                    <div class="response-footer">
+                        <button id="raise-ticket-btn" class="secondary-btn" style="display: none;">This Didn't Help, Raise A Support Ticket</button>
+                    </div>
+                </div>
+
+                <div id="triage-container" class="response-area" style="display: none;">
+                    <div id="triage-loader" class="loader" style="display: none;"></div>
+                    <div id="triage-box" class="response-content"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html>
