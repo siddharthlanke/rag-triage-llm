@@ -30,15 +30,6 @@ triage_graph = None
 vector_store = None
 triage_collection = None
 
-# # Personnel Mapping for Triage:
-# PERSONNEL_MAP = {
-#     "Login & Authentication": "Alice (Security Specialist)",
-#     "Data & Export Issues": "Bob (Data Engineer)",
-#     "Performance & Slowdowns": "Charlie (Infrastructure Lead)",
-#     "Billing & Subscriptions": "Diana (Finance Ops)",
-#     "General Inquiry": "Eve (General Support)",
-# }
-
 # State Definitions:
 class SuggestionGraphState(TypedDict):
     """ State for the advanced suggestion graph. """
@@ -57,7 +48,6 @@ class TriageGraphState(TypedDict):
     email: str 
     classification: str
     priority: str
-    # assigned_personnel: str
     team_solution: str
     ticket_id: str
 
@@ -71,7 +61,7 @@ def initialize_system():
     llm = ChatOllama(model="qwen3:4b") 
     embeddings = OllamaEmbeddings(model="all-minilm:latest")
 
-    # Vector Store for RAG (for reading past tickets data):
+    # Vector Store for RAG:
     vector_store = AstraDBVectorStore(
         embedding=embeddings,
         api_endpoint=ASTRA_DB_API_ENDPOINT,
@@ -80,7 +70,6 @@ def initialize_system():
     )
     retriever = vector_store.as_retriever(k=5)
     
-    # New Collection for Triage (writing new tickets):
     triage_collection = AstraDBVectorStore(
         embedding=embeddings,
         api_endpoint=ASTRA_DB_API_ENDPOINT,
@@ -89,9 +78,7 @@ def initialize_system():
     )
     print("AstraDB connections established.")
 
-    # =========================================================================
     # Graph 1: Advanced Suggestion Graph 
-    # =========================================================================
     print("Compiling Advanced Suggestion Graph...")
 
     def _extract_clean_response(raw_response: str) -> str:
@@ -190,23 +177,6 @@ def initialize_system():
         answer = f"I am having trouble generating a reliable answer. Please try rephrasing your question or raise a ticket for support."
         return {"answer": answer, "route": "vectorstore"}
 
-    # # A Function For Roiting Questions Between Generic Or Vectorstore
-    # def route_question(state: SuggestionGraphState):
-    #     print("SUGGESTION_GRAPH: Routing question...")
-    #     prompt = ChatPromptTemplate.from_template(
-    #         """Classify the user's question as 'vectorstore' (for informational queries) or 'generic' (for small talk). Return a JSON object: {{"route": "category"}}.
-    #         Question: {question}
-    #         JSON Output:"""
-    #     )
-    #     chain = prompt | llm
-    #     raw_output = chain.invoke({"question": state["question"]}).content
-    #     clean_output = _extract_clean_response(raw_output)
-    #     try:
-    #         decision = json.loads(clean_output).get("route", "vectorstore")
-    #         return "generate_generic_answer" if decision == "generic" else "expand_question"
-    #     except Exception:
-    #         return "expand_question"
-
     def decide_to_generate(state: SuggestionGraphState):
         return "generate_answer" if state["relevance"] == "yes" else "fallback_answer"
 
@@ -222,7 +192,6 @@ def initialize_system():
     suggestion_workflow.add_node("generate_generic_answer", generate_generic_answer)
     suggestion_workflow.add_node("fallback_answer", generate_fallback_answer)
     suggestion_workflow.add_node("handle_hallucination", handle_hallucination)
-    # suggestion_workflow.add_conditional_edges(START, route_question, {"expand_question": "expand_question", "generate_generic_answer": "generate_generic_answer"})
     suggestion_workflow.add_edge(START, "expand_question") # Comment this line and use the above line if using the route_question function
     suggestion_workflow.add_edge("expand_question", "retrieve_documents")
     suggestion_workflow.add_edge("retrieve_documents", "grade_documents")
@@ -233,11 +202,9 @@ def initialize_system():
     suggestion_workflow.add_edge("fallback_answer", END)
     suggestion_workflow.add_edge("handle_hallucination", END)
     suggestion_graph = suggestion_workflow.compile()
-    print("✅ Advanced Suggestion Graph compiled.")
+    print("Advanced Suggestion Graph compiled.")
 
-    # =========================================================================
     # Graph 2: Full Triage Graph
-    # =========================================================================
     print("Compiling Triage Graph...")
 
     def classify_ticket(state: TriageGraphState):
@@ -265,12 +232,6 @@ def initialize_system():
         priority = chain.invoke({"subject": state["subject"], "description": state["description"]}).content
         return {"priority": _extract_clean_response(priority)}
 
-    # # A Function That Recommends Personnel Based On Personnel Description From The PERSONNEL_MAP 
-    # def recommend_personnel(state: TriageGraphState):
-    #     print("TRIAGE_GRAPH: Recommending personnel...")
-    #     personnel = PERSONNEL_MAP.get(state["classification"], PERSONNEL_MAP["General Inquiry"])
-    #     return {"assigned_personnel": personnel}
-
     def generate_team_solution(state: TriageGraphState):
         print("TRIAGE_GRAPH: Generating team-facing solution...")
         question_for_retrieval = f"Subject: {state['subject']}\nDescription: {state['description']}"
@@ -295,13 +256,11 @@ def initialize_system():
             "email": state["email"], 
             "classification": state["classification"], 
             "priority": state["priority"],
-            # "assigned_personnel": state["assigned_personnel"], 
             "team_solution": state["team_solution"],
             "status": "Open", 
             "created_at": datetime.now().isoformat()
         }
         
-        # Print Statement To Show Data In The Terminal
         print("\n--- DATA TO BE STORED IN ASTRADB ---")
         print(json.dumps(ticket_data, indent=2))
         print("-------------------------------------\n")
@@ -315,18 +274,15 @@ def initialize_system():
     triage_workflow = StateGraph(TriageGraphState)
     triage_workflow.add_node("classify", classify_ticket)
     triage_workflow.add_node("prioritize", assess_priority)
-    # triage_workflow.add_node("recommend", recommend_personnel)
     triage_workflow.add_node("generate_team_solution", generate_team_solution)
     triage_workflow.add_node("store_ticket", store_ticket_in_db)
     triage_workflow.add_edge(START, "classify")
     triage_workflow.add_edge("classify", "prioritize")
-    # triage_workflow.add_edge("prioritize", "recommend")
     triage_workflow.add_edge("prioritize", "generate_team_solution")
-    # triage_workflow.add_edge("recommend", "generate_team_solution")
     triage_workflow.add_edge("generate_team_solution", "store_ticket")
     triage_workflow.add_edge("store_ticket", END)
     triage_graph = triage_workflow.compile()
-    print("✅ Triage Graph compiled.")
+    print("Triage Graph compiled.")
     print("--- System Initialized Successfully ---")
 
 # API Endpoints:
@@ -372,5 +328,5 @@ def create_ticket():
 
 if __name__ == '__main__':
     initialize_system()
-    # Using use_reloader as False as keeping it True was resulting in a loop bug.
+    # Use use_reloader as False as keeping it True was resulting in a loop bug.
     app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)
