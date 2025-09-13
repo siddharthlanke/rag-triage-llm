@@ -25,7 +25,7 @@ print("Connecting to AstraDB vector store...")
 vector_store = AstraDBVectorStore(
     embedding=embeddings,
     api_endpoint=ASTRA_DB_API_ENDPOINT,
-    collection_name="dantelcsv",
+    collection_name="give_a_collection_name",
     token=ASTRA_DB_TOKEN
 )
 
