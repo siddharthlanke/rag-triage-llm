@@ -45,7 +45,7 @@ try:
     vector_store.add_documents(all_splits)
     
     print("\n-----------------------------------------")
-    print("✅ Data ingestion complete!")
+    print("Data ingestion complete!")
     print(f"Total chunks added: {len(all_splits)}")
     print("You can now run the main application using 'python app.py'")
     print("-----------------------------------------")
